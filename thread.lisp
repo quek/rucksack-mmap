@@ -115,7 +115,8 @@
         (when (and (zerop write-count)
                    (zerop read-count))
           (incf write-count)
-          (return-from lock-writer))))))
+          (return-from lock-writer)))
+      (sb-thread:thread-yield))))
 
 (defmethod lock-writer-try ((lock mutex-rw-lock))
   (with-slots (lock write-count read-count) lock
@@ -130,7 +131,8 @@
       (sb-thread:with-mutex (lock)
         (when (zerop write-count)
           (incf read-count)
-          (return-from lock-reader))))))
+          (return-from lock-reader)))
+      (sb-thread:thread-yield))))
 
 (defmethod lock-reader-try ((lock mutex-rw-lock))
   (with-slots (lock write-count read-count) lock

@@ -502,8 +502,8 @@ objects.")))
 (defun open-rucksack (directory-designator 
                       &rest args
                       &key 
-                      (class 'serial-transaction-rucksack)
-                      ;;(class 'rw-transaction-rucksack)
+                      ;;(class 'serial-transaction-rucksack)
+                      (class 'rw-transaction-rucksack)
                       (if-exists :overwrite)
                       (if-does-not-exist :create)
                       (cache-class 'lazy-cache)
