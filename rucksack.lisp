@@ -285,6 +285,7 @@ in which it appears."))
                              &key
                              (rucksack '(current-rucksack))
                              (inhibit-gc nil inhibit-gc-supplied-p)
+                             (read-only nil)
                              &allow-other-keys)
                             &body body)
   (let ((committed (gensym "COMMITTED"))
@@ -502,6 +503,7 @@ objects.")))
                       &rest args
                       &key 
                       (class 'serial-transaction-rucksack)
+                      ;;(class 'rw-transaction-rucksack)
                       (if-exists :overwrite)
                       (if-does-not-exist :create)
                       (cache-class 'lazy-cache)

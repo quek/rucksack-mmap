@@ -22,5 +22,6 @@
                (:file "index")
                (:file "rucksack")
                (:file "transactions")
+               (:file "rw-transactions")
                (:file "import-export"))
   :depends-on (#:alexandria))

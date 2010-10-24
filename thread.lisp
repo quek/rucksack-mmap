@@ -103,7 +103,62 @@
       (decf write-count)
       (incf read-count))))
 
-(defmacro with-spin-rw-lock ((lock writer) &body body)
+(defclass mutex-rw-lock ()
+  ((lock :initform (sb-thread:make-mutex))
+   (write-count :initform 0)
+   (read-count :initform 0)))
+
+(defmethod lock-writer ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (loop
+      (sb-thread:with-mutex (lock)
+        (when (and (zerop write-count)
+                   (zerop read-count))
+          (incf write-count)
+          (return-from lock-writer))))))
+
+(defmethod lock-writer-try ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (sb-thread:with-mutex (lock)
+      (when (and (zerop write-count)
+                 (zerop read-count))
+        (incf write-count)))))
+
+(defmethod lock-reader ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (loop
+      (sb-thread:with-mutex (lock)
+        (when (zerop write-count)
+          (incf read-count)
+          (return-from lock-reader))))))
+
+(defmethod lock-reader-try ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (sb-thread:with-mutex (lock)
+      (when (zerop write-count)
+        (incf read-count)))))
+
+(defmethod unlock ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (sb-thread:with-mutex (lock)
+      (if (plusp write-count)
+          (decf write-count)
+          (decf read-count)))))
+
+(defmethod promote ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (sb-thread:with-mutex (lock)
+      (when (= read-count 1)
+        (decf read-count)
+        (incf write-count)))))
+
+(defmethod demote ((lock mutex-rw-lock))
+  (with-slots (lock write-count read-count) lock
+    (sb-thread:with-mutex (lock)
+      (decf write-count)
+      (incf read-count))))
+
+(defmacro with-rw-lock ((lock writer) &body body)
   `(progn
      ,(case writer
         ((t)
