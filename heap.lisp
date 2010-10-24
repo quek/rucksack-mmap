@@ -83,6 +83,9 @@ was called.")))
                       :if-exists if-exists
                       :if-does-not-exist if-does-not-exist
                       #+openmcl :sharing #+openmcl :external)))
+    (setf stream (make-instance 'mmap-stream
+                                :base-stream stream
+                                :mmap-size (ash 16 20) :ext 1.5))
     (apply #'make-instance
            class
            :stream stream

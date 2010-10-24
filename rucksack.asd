@@ -10,6 +10,8 @@
                (:file "errors")
                (:file "mop")
                (:file "serialize" )
+               (:file "thread")
+               (:file "file")
                (:file "heap")
                (:file "object-table")
                (:file "schema-table")
@@ -20,5 +22,5 @@
                (:file "index")
                (:file "rucksack")
                (:file "transactions")
-               (:file "import-export")))
-
+               (:file "import-export"))
+  :depends-on (#:alexandria))
