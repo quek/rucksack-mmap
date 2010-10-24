@@ -196,7 +196,7 @@ contains a pointer to the next block on the same free list."))
 (defmethod initialize-instance :after ((heap free-list-heap)
                                        &key &allow-other-keys)
   ;; Initialize the heap end.
-  (if (zerop (file-length (heap-stream heap)))
+  (if (zerop (stream-length (heap-stream heap)))
       (setf (heap-end heap) +pointer-size+)
     (setf (slot-value heap 'end) (pointer-value 0 heap)))
   ;; Load or create the array of free list pointers.

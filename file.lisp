@@ -267,25 +267,12 @@
   (with-slots (file-length) stream
     file-length))
 
-(unless (sb-int:encapsulated-p 'cl:file-length :mmap-stream)
-  (sb-int:encapsulate
-   'cl:file-length :mmap-stream
-   '(let ((stream (car sb-int:arg-list)))
-     (typecase stream
-       (mmap-stream
-          (stream-length stream))
-       (t (apply sb-int:basic-definition sb-int:arg-list))))))
-
-(unless (sb-int:encapsulated-p 'cl:pathname :mmap-stream)
-  (sb-int:encapsulate
-   'cl:pathname :mmap-stream
-   '(let ((pathspec (car sb-int:arg-list)))
-     (typecase pathspec
-       (mmap-stream
-          (funcall sb-int:basic-definition (slot-value pathspec 'base-stream)))
-       (t (apply sb-int:basic-definition sb-int:arg-list))))))
-
-
+(defgeneric stream-pathname (stream)
+  (:method ((stream mmap-stream))
+    (with-slots (base-stream) stream
+      (pathname base-stream)))
+  (:method (stream)
+      (pathname stream)))
 
 (defun open-mmap-stream (path mmap-size &optional (extend 1.5))
   (make-instance 'mmap-stream
@@ -297,7 +284,6 @@
 (let ((f (open "/tmp/a.txt" :direction :io :element-type '(unsigned-byte 8)
                :if-exists :overwrite :if-does-not-exist :create)))
   (with-open-stream (m (make-instance 'mmap-stream :base-stream f :mmap-size 5))
-    (write-byte 16 m)
     (stream-truncate m 7)
     (let ((code (char-code #\!)))
       (file-position m 1)

@@ -217,7 +217,7 @@ very stupid about the objects it should try to keep in memory."))
 
 (defun commit-filename (cache)
   (merge-pathnames "commit"
-                   (pathname (heap-stream (heap cache)))))
+                   (stream-pathname (heap-stream (heap cache)))))
 
 
 ;;
